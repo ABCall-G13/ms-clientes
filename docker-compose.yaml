@@ -1,0 +1,41 @@
+services:
+  clients-primary:
+    image: gcr.io/cloudsql-docker/gce-proxy:1.12
+    platform: linux/amd64
+    container_name: clients-primary
+    command: /bin/sh -c "mkdir -p /cloudsql && /cloud_sql_proxy -dir=/cloudsql -instances=${INSTANCE_CLIENTS} -credential_file=/config/${JSON_KEY_FILE}"
+    ports:
+      - '0.0.0.0:${PORT_CLIENTS}:3306'
+    volumes:
+      - ./${JSON_KEY_FILE}:/config/${JSON_KEY_FILE}  # Montamos el archivo JSON de credenciales
+    networks:
+      - backend
+
+  redis:
+    image: redis:alpine
+    container_name: ${DOCKER_REDIS_SERVICE_NAME}
+    networks:
+      - backend
+    ports:
+      - '${DOCKER_REDIS_PORT}:6379'
+
+  backend:
+    build:
+      context: ./clientes
+      dockerfile: Dockerfile
+    container_name: clients_backend
+    networks:
+      - backend
+    ports:
+      - '${DOCKER_BACKEND_PORT}:8080'
+    env_file:
+      - .env  # Cargamos variables de entorno desde el archivo .env
+    volumes:
+      - ./clientes:/app/clientes
+      - ./.env:/app/.env
+      - ./${JSON_KEY_FILE}:/app/${JSON_KEY_FILE}  # Montamos el archivo JSON en el contenedor del backend
+
+networks:
+  backend:
+    external: true
+    name: prueba
