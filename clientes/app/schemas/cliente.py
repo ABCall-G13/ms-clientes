@@ -1,11 +1,24 @@
 from pydantic import BaseModel, EmailStr
 
-# Esquema para crear un nuevo cliente
 class ClienteCreate(BaseModel):
     nombre: str
     email: EmailStr
+    nit: str
     direccion: str
     telefono: str
+    industria: str
 
     class Config:
-        orm_mode = True
+        from_attributes = True  # Esto reemplaza orm_mode en Pydantic V2
+
+class ClienteResponse(BaseModel):
+    id: int
+    nombre: str
+    email: EmailStr
+    nit: str
+    direccion: str
+    telefono: str
+    industria: str
+
+    class Config:
+        from_attributes = True
