@@ -14,6 +14,7 @@ RUN /venv/bin/pip install --disable-pip-version-check -r /requirements.txt && \
     /venv/bin/pip install debugpy 
 
 FROM gcr.io/distroless/python3-debian12 as production
+USER 1000
 
 COPY --from=build-venv /venv /venv
 COPY main.py /app/main.py
