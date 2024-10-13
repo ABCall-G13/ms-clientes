@@ -17,7 +17,8 @@ RUN /venv/bin/pip install --disable-pip-version-check -r /requirements.txt && \
 FROM gcr.io/distroless/python3-debian12 as production
 COPY --from=build-venv /venv /venv
 
-COPY . /app
+COPY main.py /app/main.py
+COPY app/ /app/app/
 WORKDIR /app
 
 EXPOSE 8080
