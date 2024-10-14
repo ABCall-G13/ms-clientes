@@ -1,15 +1,15 @@
 services:
-  clients-primary:
-    image: gcr.io/cloudsql-docker/gce-proxy:1.12
-    platform: linux/amd64
-    container_name: clients-primary
-    command: /bin/sh -c "mkdir -p /cloudsql && /cloud_sql_proxy -dir=/cloudsql -instances=${INSTANCE_CLIENTS} -credential_file=/config/${JSON_KEY_FILE}"
-    ports:
-      - '0.0.0.0:${PORT_CLIENTS}:3306'
-    volumes:
-      - ./${JSON_KEY_FILE}:/config/${JSON_KEY_FILE}  # Montamos el archivo JSON de credenciales
-    networks:
-      - backend
+  database:
+      image: mysql:8.0
+      environment:
+        MYSQL_ROOT_PASSWORD: password  
+        MYSQL_DATABASE: clientes
+      ports:
+        - "3306:3306"  # Exponer el puerto 3306
+      volumes:
+        - mysql_data:/var/lib/mysql  # Persistencia de los datos en un volumen
+      networks:
+        - backend
 
   redis:
     image: redis:alpine
@@ -34,6 +34,11 @@ services:
       - ./clientes:/app/clientes
       - ./.env:/app/.env
       - ./${JSON_KEY_FILE}:/app/${JSON_KEY_FILE}  # Montamos el archivo JSON en el contenedor del backend
+    depends_on:
+      - database
+      
+volumes:
+  mysql_data:
 
 networks:
   backend:
