@@ -9,7 +9,8 @@ def create_cliente(db: Session, cliente: ClienteCreate):
         nit=cliente.nit,
         direccion=cliente.direccion,
         telefono=cliente.telefono,
-        industria=cliente.industria
+        industria=cliente.industria,
+        session=db
     )
     db.add(db_cliente)
     db.commit()

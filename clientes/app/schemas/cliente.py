@@ -9,7 +9,7 @@ class ClienteCreate(BaseModel):
     industria: str
 
     class Config:
-        from_attributes = True  # Esto reemplaza orm_mode en Pydantic V2
+        from_attributes = True
 
 class ClienteResponse(BaseModel):
     id: int

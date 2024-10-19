@@ -10,6 +10,11 @@ services:
         - mysql_data:/var/lib/mysql  # Persistencia de los datos en un volumen
       networks:
         - backend
+      deploy:
+        resources:
+          limits:
+            cpus: '0.50'
+            memory: 512M
 
   redis:
     image: redis:alpine
@@ -34,6 +39,11 @@ services:
       - ./clientes:/app/clientes
       - ./.env:/app/.env
       - ./${JSON_KEY_FILE}:/app/${JSON_KEY_FILE}  # Montamos el archivo JSON en el contenedor del backend
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 512M
     depends_on:
       - database
       
@@ -42,5 +52,4 @@ volumes:
 
 networks:
   backend:
-    external: true
     name: prueba
