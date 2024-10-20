@@ -8,6 +8,7 @@ class ClienteCreate(BaseModel):
     telefono: str
     industria: str
     password: str
+    WelcomeMessage: str
 
     class Config:
         from_attributes = True
@@ -20,6 +21,7 @@ class ClienteResponse(BaseModel):
     direccion: str
     telefono: str
     industria: str
+    WelcomeMessage: str
 
     class Config:
         from_attributes = True
