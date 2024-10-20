@@ -12,6 +12,7 @@ class Cliente(Base):
     direccion = Column(String(60))
     telefono = Column(String(60))
     industria = Column(String(60))
+    password = Column(String(128), nullable=False)
 
     def __init__(self, **kwargs):
         self.session = kwargs.pop('session', None)
@@ -21,8 +22,7 @@ class Cliente(Base):
     def validate_nit(self, key, value):
         if not value.isdigit():
             raise ValueError("El NIT debe ser numérico.")
-        
-        # Verificar si ya existe un cliente con el mismo NIT
+
         if self.session:
             existing_nit = self.session.query(Cliente).filter(Cliente.nit == value).first()
             if existing_nit:

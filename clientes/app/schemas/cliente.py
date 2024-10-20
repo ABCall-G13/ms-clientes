@@ -7,6 +7,7 @@ class ClienteCreate(BaseModel):
     direccion: str
     telefono: str
     industria: str
+    password: str
 
     class Config:
         from_attributes = True
