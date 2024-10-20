@@ -18,6 +18,7 @@ def create_cliente(db: Session, cliente: ClienteCreate):
         telefono=cliente.telefono,
         industria=cliente.industria,
         password=hashed_password,
+        WelcomeMessage=cliente.WelcomeMessage,
         session=db
     )
     db.add(db_cliente)
