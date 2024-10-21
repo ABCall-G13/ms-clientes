@@ -1,5 +1,6 @@
 from pydantic import BaseModel, EmailStr
 
+
 class ClienteCreate(BaseModel):
     nombre: str
     email: EmailStr
@@ -12,6 +13,7 @@ class ClienteCreate(BaseModel):
 
     class Config:
         from_attributes = True
+
 
 class ClienteResponse(BaseModel):
     id: int

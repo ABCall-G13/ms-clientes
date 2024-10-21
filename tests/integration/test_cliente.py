@@ -13,9 +13,12 @@ from app.db.session import get_db
 # Create the new database session
 
 SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"
-engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
+engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={
+                       "check_same_thread": False})
 
-TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+TestingSessionLocal = sessionmaker(
+    autocommit=False, autoflush=False, bind=engine)
+
 
 @pytest.fixture()
 def session():
@@ -34,6 +37,7 @@ def session():
         if os.path.exists("test.db"):
             os.remove("test.db")
 
+
 @pytest.fixture()
 def client(session):
 
@@ -49,6 +53,7 @@ def client(session):
     app.dependency_overrides[get_db] = override_get_db
 
     yield TestClient(app)
+
 
 def test_create_cliente(client):
     cliente_data = {

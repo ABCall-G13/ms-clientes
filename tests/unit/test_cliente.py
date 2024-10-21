@@ -7,17 +7,23 @@ from app.schemas.cliente import ClienteCreate
 from app.models.cliente import Cliente
 
 # Crear un motor de base de datos en memoria para las pruebas
+
+
 @pytest.fixture(scope='module')
 def db_engine():
     engine = create_engine("sqlite:///:memory:", echo=True)
-    Base.metadata.create_all(engine)  # Crear las tablas necesarias en la base de datos en memoria
+    # Crear las tablas necesarias en la base de datos en memoria
+    Base.metadata.create_all(engine)
     yield engine
     Base.metadata.drop_all(engine)
 
 # Crear una sesión de base de datos que use la base de datos en memoria
+
+
 @pytest.fixture(scope='function')
 def db_session(db_engine):
-    SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=db_engine)
+    SessionLocal = sessionmaker(
+        autocommit=False, autoflush=False, bind=db_engine)
     session = SessionLocal()
     try:
         yield session
@@ -25,6 +31,8 @@ def db_session(db_engine):
         session.close()
 
 # Prueba para la creación de un cliente
+
+
 def test_create_cliente(db_session):
     cliente_data = ClienteCreate(
         nombre="John Doe",
@@ -36,7 +44,7 @@ def test_create_cliente(db_session):
         password="mysecretpassword",
         WelcomeMessage="Welcome John!"
     )
-    
+
     # Crear cliente usando la función que se está probando
     cliente = create_cliente(db_session, cliente_data)
 
