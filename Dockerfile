@@ -20,8 +20,9 @@ FROM gcr.io/distroless/python3-debian12 as production
 USER 1000
 
 COPY --from=build-venv /venv /venv
-COPY main.py /app/main.py
-COPY clientes/ /app/clientes/
+
+COPY . /app
+
 WORKDIR /app
 
 EXPOSE 8080

@@ -36,7 +36,6 @@ services:
     env_file:
       - .env  # Cargamos variables de entorno desde el archivo .env
     volumes:
-      - ./clientes:/app/clientes
       - ./.env:/app/.env
       - ./${JSON_KEY_FILE}:/app/${JSON_KEY_FILE}  # Montamos el archivo JSON en el contenedor del backend
     deploy:
