@@ -52,4 +52,5 @@ volumes:
 
 networks:
   backend:
+    external: true
     name: prueba
