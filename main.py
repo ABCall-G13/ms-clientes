@@ -1,8 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from clientes.app.routers import cliente
-from clientes.app.db.session import engine
-from clientes.app.db.base import Base
+from app.routers import cliente
+from app.db.session import engine
+from app.db.base import Base
 
 origins = [
     "http://localhost:3000",
