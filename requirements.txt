@@ -45,5 +45,3 @@ tox==4.21.2
 typing_extensions==4.12.2
 uvicorn==0.31.1
 virtualenv==20.26.6
-mysql-connector-python
-python-dotenv
