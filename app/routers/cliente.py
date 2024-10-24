@@ -9,7 +9,7 @@ from app.models.cliente import Cliente
 router = APIRouter()
 
 
-@router.post("/clientes/", response_model=ClienteResponse)
+@router.post("/clientes", response_model=ClienteResponse)
 def registrar_cliente(cliente: ClienteCreate, db: Session = Depends(get_db)):
     try:
         return create_cliente(db=db, cliente=cliente)
