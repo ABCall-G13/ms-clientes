@@ -6,32 +6,26 @@ from app.crud.cliente import create_cliente, get_all_clientes
 from app.schemas.cliente import ClienteCreate
 
 
-# Crear un motor de base de datos en memoria para las pruebas
-
-
 @pytest.fixture(scope='module')
 def db_engine():
     engine = create_engine("sqlite:///:memory:", echo=True)
-    # Crear las tablas necesarias en la base de datos en memoria
     Base.metadata.create_all(engine)
     yield engine
     Base.metadata.drop_all(engine)
-
-# Crear una sesión de base de datos que use la base de datos en memoria
-
 
 @pytest.fixture(scope='function')
 def db_session(db_engine):
     SessionLocal = sessionmaker(
         autocommit=False, autoflush=False, bind=db_engine)
     session = SessionLocal()
+
+    Base.metadata.drop_all(bind=db_engine)
+    Base.metadata.create_all(bind=db_engine)
+
     try:
         yield session
     finally:
         session.close()
-
-# Prueba para la creación de un cliente
-
 
 def test_create_cliente(db_session):
     cliente_data = ClienteCreate(
@@ -45,15 +39,11 @@ def test_create_cliente(db_session):
         WelcomeMessage="Welcome John!"
     )
 
-    # Crear cliente usando la función que se está probando
     cliente = create_cliente(db_session, cliente_data)
 
-    # Validar que el cliente se ha creado correctamente
     assert cliente.email == cliente_data.email
     assert cliente.nombre == cliente_data.nombre
 
-
-# Prueba para obtener todos los clientes
 def test_get_all_clientes(db_session):
     cliente_data_1 = ClienteCreate(
         nombre="John Doe",

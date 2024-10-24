@@ -1,29 +1,21 @@
 import pytest
 import os
 from fastapi.testclient import TestClient
-
-# Import the SQLAlchemy parts
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.ext.declarative import declarative_base
-from main import app
 from app.db.base import Base
 from app.db.session import get_db
-
-# Create the new database session
+from main import app
 
 SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"
-engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={
-                       "check_same_thread": False})
-
-TestingSessionLocal = sessionmaker(
-    autocommit=False, autoflush=False, bind=engine)
-
+engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
+TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 @pytest.fixture()
 def session():
-    # Crea las tablas antes de cada prueba
+    # Eliminar todas las tablas antes de la prueba
     Base.metadata.drop_all(bind=engine)
+    # Crear las tablas nuevamente
     Base.metadata.create_all(bind=engine)
 
     db = TestingSessionLocal()
@@ -33,19 +25,11 @@ def session():
     finally:
         db.close()
 
-        # Elimina el archivo de la base de datos después de que terminen las pruebas
-        if os.path.exists("test.db"):
-            os.remove("test.db")
-
-
 @pytest.fixture()
 def client(session):
 
-    # Dependency override
-
     def override_get_db():
         try:
-
             yield session
         finally:
             session.close()
@@ -54,6 +38,11 @@ def client(session):
 
     yield TestClient(app)
 
+@pytest.fixture()
+def cleanup():
+    yield
+    if os.path.exists("test.db"):
+        os.remove("test.db")
 
 def test_create_cliente(client):
     cliente_data = {
@@ -69,8 +58,7 @@ def test_create_cliente(client):
     response = client.post("/clientes/", json=cliente_data)
     assert response.status_code == 200
     assert response.json()["nombre"] == cliente_data["nombre"]
-    
-    
+
 def test_listar_clientes(client):
     cliente_data_1 = {
         "nombre": "Empresa XYZ",
