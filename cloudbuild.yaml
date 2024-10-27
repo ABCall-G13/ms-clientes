@@ -5,6 +5,8 @@ steps:
     args:
       - '-c'
       - |
+        apt-get update && \
+        apt-get install -y gcc default-libmysqlclient-dev pkg-config && \
         python -m venv venv && \
         . venv/bin/activate && \
         pip install -r requirements.txt
@@ -53,3 +55,5 @@ steps:
       - '--vpc-connector=$_VPC_CONNECTOR'
 options:
   logging: CLOUD_LOGGING_ONLY
+
+

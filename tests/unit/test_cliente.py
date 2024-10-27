@@ -2,36 +2,30 @@ import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from app.db.base import Base
-from app.crud.cliente import create_cliente
+from app.crud.cliente import create_cliente, get_all_clientes
 from app.schemas.cliente import ClienteCreate
-from app.models.cliente import Cliente
-
-# Crear un motor de base de datos en memoria para las pruebas
 
 
 @pytest.fixture(scope='module')
 def db_engine():
     engine = create_engine("sqlite:///:memory:", echo=True)
-    # Crear las tablas necesarias en la base de datos en memoria
     Base.metadata.create_all(engine)
     yield engine
     Base.metadata.drop_all(engine)
-
-# Crear una sesión de base de datos que use la base de datos en memoria
-
 
 @pytest.fixture(scope='function')
 def db_session(db_engine):
     SessionLocal = sessionmaker(
         autocommit=False, autoflush=False, bind=db_engine)
     session = SessionLocal()
+
+    Base.metadata.drop_all(bind=db_engine)
+    Base.metadata.create_all(bind=db_engine)
+
     try:
         yield session
     finally:
         session.close()
-
-# Prueba para la creación de un cliente
-
 
 def test_create_cliente(db_session):
     cliente_data = ClienteCreate(
@@ -46,9 +40,35 @@ def test_create_cliente(db_session):
         escalation_time=24
     )
 
-    # Crear cliente usando la función que se está probando
     cliente = create_cliente(db_session, cliente_data)
 
-    # Validar que el cliente se ha creado correctamente
     assert cliente.email == cliente_data.email
     assert cliente.nombre == cliente_data.nombre
+
+def test_get_all_clientes(db_session):
+    cliente_data_1 = ClienteCreate(
+        nombre="John Doe",
+        email="john.doe@example.com",
+        nit="123456789",
+        direccion="123 Main St",
+        telefono="555-1234",
+        industria="Tech",
+        password="mysecretpassword",
+        WelcomeMessage="Welcome John!"
+    )
+    cliente_data_2 = ClienteCreate(
+        nombre="Jane Doe",
+        email="jane.doe@example.com",
+        nit="987654321",
+        direccion="456 Elm St",
+        telefono="555-5678",
+        industria="Health",
+        password="anothersecretpassword",
+        WelcomeMessage="Welcome Jane!"
+    )
+    create_cliente(db_session, cliente_data_1)
+    create_cliente(db_session, cliente_data_2)
+    clientes = get_all_clientes(db_session)
+    assert len(clientes) == 2
+    assert clientes[0].email == cliente_data_1.email
+    assert clientes[1].email == cliente_data_2.email

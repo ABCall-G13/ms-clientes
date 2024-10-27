@@ -28,3 +28,7 @@ def create_cliente(db: Session, cliente: ClienteCreate):
     db.commit()
     db.refresh(db_cliente)
     return db_cliente
+
+
+def get_all_clientes(db: Session):
+    return db.query(Cliente).all()

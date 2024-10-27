@@ -1,7 +1,8 @@
 # Etapa de construcción
 FROM debian:12-slim AS build
 RUN apt-get update && \
-    apt-get install --no-install-suggests --no-install-recommends --yes python3-venv gcc libpython3-dev && \
+    apt-get install --no-install-suggests --no-install-recommends --yes \
+    python3-venv gcc libpython3-dev default-libmysqlclient-dev pkg-config && \
     python3 -m venv /venv && \
     /venv/bin/pip install --upgrade pip setuptools wheel
 
@@ -13,7 +14,7 @@ ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
 RUN /venv/bin/pip install --disable-pip-version-check -r /requirements.txt && \
-    /venv/bin/pip install debugpy 
+    /venv/bin/pip install debugpy
 
 # Etapa de producción
 FROM gcr.io/distroless/python3-debian12 as production
