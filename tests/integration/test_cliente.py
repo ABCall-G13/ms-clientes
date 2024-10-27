@@ -64,7 +64,8 @@ def test_create_cliente(client):
         "telefono": "555-1234",
         "industria": "Finanzas",
         "password": "Secreto$1",
-        "WelcomeMessage": "Bienvenido a la empresa XYZ"
+        "WelcomeMessage": "Bienvenido a la empresa XYZ",
+        "escalation_time": 24
     }
     response = client.post("/clientes/", json=cliente_data)
     assert response.status_code == 200

@@ -42,7 +42,8 @@ def test_create_cliente(db_session):
         telefono="555-1234",
         industria="Tech",
         password="mysecretpassword",
-        WelcomeMessage="Welcome John!"
+        WelcomeMessage="Welcome John!",
+        escalation_time=24
     )
 
     # Crear cliente usando la función que se está probando

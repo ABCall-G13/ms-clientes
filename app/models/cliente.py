@@ -14,6 +14,7 @@ class Cliente(Base):
     industria = Column(String(60))
     password = Column(String(128), nullable=False)
     WelcomeMessage = Column(String)
+    escalation_time = Column(Integer)
 
     def __init__(self, **kwargs):
         self.session = kwargs.pop('session', None)
