@@ -69,7 +69,8 @@ def test_listar_clientes(client):
         "telefono": "555-1234",
         "industria": "Finanzas",
         "password": "Secreto$1",
-        "WelcomeMessage": "Bienvenido a la empresa XYZ"
+        "WelcomeMessage": "Bienvenido a la empresa XYZ",
+        "escalation_time": 24
     }
     cliente_data_2 = {
         "nombre": "Empresa ABC",
@@ -79,7 +80,8 @@ def test_listar_clientes(client):
         "telefono": "555-5678",
         "industria": "Tecnología",
         "password": "Secreto$2",
-        "WelcomeMessage": "Bienvenido a la empresa ABC"
+        "WelcomeMessage": "Bienvenido a la empresa ABC",
+        "escalation_time": 24
     }
     client.post("/clientes/", json=cliente_data_1)
     client.post("/clientes/", json=cliente_data_2)

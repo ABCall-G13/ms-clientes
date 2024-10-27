@@ -54,7 +54,8 @@ def test_get_all_clientes(db_session):
         telefono="555-1234",
         industria="Tech",
         password="mysecretpassword",
-        WelcomeMessage="Welcome John!"
+        WelcomeMessage="Welcome John!",
+        escalation_time=24
     )
     cliente_data_2 = ClienteCreate(
         nombre="Jane Doe",
@@ -64,7 +65,8 @@ def test_get_all_clientes(db_session):
         telefono="555-5678",
         industria="Health",
         password="anothersecretpassword",
-        WelcomeMessage="Welcome Jane!"
+        WelcomeMessage="Welcome Jane!",
+        escalation_time=24
     )
     create_cliente(db_session, cliente_data_1)
     create_cliente(db_session, cliente_data_2)
