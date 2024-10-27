@@ -21,6 +21,7 @@ def create_cliente(db: Session, cliente: ClienteCreate):
         industria=cliente.industria,
         password=hashed_password,
         WelcomeMessage=cliente.WelcomeMessage,
+        escalation_time=cliente.escalation_time,
         session=db
     )
     db.add(db_cliente)

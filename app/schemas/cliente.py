@@ -10,6 +10,7 @@ class ClienteCreate(BaseModel):
     industria: str
     password: str
     WelcomeMessage: str
+    escalation_time: int
 
     class Config:
         from_attributes = True
@@ -24,6 +25,7 @@ class ClienteResponse(BaseModel):
     telefono: str
     industria: str
     WelcomeMessage: str
+    escalation_time: int
 
     class Config:
         from_attributes = True
