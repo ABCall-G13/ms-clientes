@@ -5,14 +5,13 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from app.db.base import Base
 from app.db.session import get_db
+from app.utils.security import get_current_user
 from main import app
+from app.models.cliente import Cliente
 
 SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"
-engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={
-                       "check_same_thread": False})
-TestingSessionLocal = sessionmaker(
-    autocommit=False, autoflush=False, bind=engine)
-
+engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
+TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 @pytest.fixture()
 def session():
@@ -28,27 +27,36 @@ def session():
     finally:
         db.close()
 
-
 @pytest.fixture()
 def client(session):
+    # Mockear get_current_user para evitar la autenticación real
+    def mock_get_current_user():
+        # Retorna un usuario simulado
+        return Cliente(
+            id=1,
+            nombre="Usuario Simulado",
+            email="simulado@xyz.com",
+            nit="123456789",
+            direccion="Calle Falsa 123",
+            telefono="555-1234",
+            industria="Tecnología",
+            password="hashedpassword"
+        )
 
-    def override_get_db():
-        try:
-            yield session
-        finally:
-            session.close()
-
-    app.dependency_overrides[get_db] = override_get_db
+    # Sobrescribir la dependencia get_current_user
+    app.dependency_overrides[get_db] = lambda: session
+    app.dependency_overrides[get_current_user] = mock_get_current_user
 
     yield TestClient(app)
 
+    # Limpiar overrides después de las pruebas
+    app.dependency_overrides = {}
 
 @pytest.fixture()
 def cleanup():
     yield
     if os.path.exists("test.db"):
         os.remove("test.db")
-
 
 def test_create_cliente(client):
     cliente_data = {
@@ -65,7 +73,6 @@ def test_create_cliente(client):
     response = client.post("/clientes/", json=cliente_data)
     assert response.status_code == 200
     assert response.json()["nombre"] == cliente_data["nombre"]
-
 
 def test_listar_clientes(client):
     cliente_data_1 = {
@@ -98,7 +105,6 @@ def test_listar_clientes(client):
     assert len(clientes) == 2
     assert clientes[0]["email"] == cliente_data_1["email"]
     assert clientes[1]["email"] == cliente_data_2["email"]
-
 
 def test_obtener_cliente_por_nit(client):
     cliente_data = {
