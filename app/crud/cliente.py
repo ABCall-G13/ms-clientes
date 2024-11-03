@@ -1,5 +1,7 @@
+from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from app.models.cliente import Cliente
+from app.schemas.auth import LoginRequest
 from app.schemas.cliente import ClienteCreate
 from passlib.context import CryptContext
 
@@ -36,3 +38,11 @@ def get_all_clientes(db: Session):
 
 def get_cliente_by_nit(db: Session, nit: str):
     return db.query(Cliente).filter(Cliente.nit == nit).first()
+
+def authenticate_cliente(db: Session, login_request: LoginRequest):
+    cliente = db.query(Cliente).filter(Cliente.email == login_request.email).first()
+    if not cliente or not verify_password(login_request.password, cliente.password):
+        raise HTTPException(status_code=400, detail="Correo o contraseña incorrectos")
+    
+    access_token = create_access_token(data={"sub": cliente.email})
+    return {"access_token": access_token, "token_type": "bearer"}
