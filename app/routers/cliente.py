@@ -12,7 +12,7 @@ from app.utils.security import get_current_user
 router = APIRouter()
 
 @router.post("/clientes", response_model=ClienteResponse)
-def registrar_cliente(cliente: ClienteCreate, db: Session = Depends(get_db)):
+def registrar_cliente(cliente: ClienteCreate, db: Session = Depends(get_db), current_user: Cliente = Depends(get_current_user)):
     try:
         return create_cliente(db=db, cliente=cliente)
     except ValueError as e:
