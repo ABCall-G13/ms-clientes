@@ -10,7 +10,7 @@ from app.models.cliente import Cliente
 from datetime import datetime, timedelta, timezone
 
 
-SECRET_KEY = config("SECRET_KEY")
+SECRET_KEY = config.SECRET_KEY
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 

@@ -4,6 +4,7 @@ from app.models.cliente import Cliente
 from app.schemas.auth import LoginRequest
 from app.schemas.cliente import ClienteCreate
 from passlib.context import CryptContext
+from app.utils.security import create_access_token, verify_password
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
