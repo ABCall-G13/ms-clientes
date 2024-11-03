@@ -1,9 +1,15 @@
+from fastapi import HTTPException
 import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from app.db.base import Base
-from app.crud.cliente import create_cliente, get_all_clientes, get_cliente_by_nit
+from app.crud.cliente import authenticate_cliente, create_cliente, get_all_clientes, get_cliente_by_nit, get_password_hash
+from app.models.cliente import Cliente
+from app.schemas.auth import LoginRequest
 from app.schemas.cliente import ClienteCreate
+from jose import jwt
+
+from app.utils.security import create_access_token, get_current_user
 
 
 @pytest.fixture(scope='module')
@@ -102,3 +108,65 @@ def test_get_cliente_by_nit(db_session):
     # Verificar que un NIT inexistente retorna None
     cliente_inexistente = get_cliente_by_nit(db_session, nit="000000000")
     assert cliente_inexistente is None
+    
+def test_authenticate_cliente(db_session):
+    # Crear un cliente en la base de datos
+    cliente_data = {
+        "nombre": "John Doe",
+        "email": "john.doe@example.com",
+        "nit": "123456789",
+        "direccion": "123 Main St",
+        "telefono": "555-1234",
+        "industria": "Tech",
+        "password": get_password_hash("mysecretpassword"),
+        "WelcomeMessage": "Welcome John!",
+        "escalation_time": 24
+    }
+    cliente = Cliente(**cliente_data)
+    db_session.add(cliente)
+    db_session.commit()
+
+    # Probar autenticación exitosa
+    login_request = LoginRequest(email="john.doe@example.com", password="mysecretpassword")
+    result = authenticate_cliente(db_session, login_request)
+    assert "access_token" in result
+    assert result["token_type"] == "bearer"
+
+    # Probar autenticación fallida
+    login_request = LoginRequest(email="john.doe@example.com", password="wrongpassword")
+    with pytest.raises(HTTPException):
+        authenticate_cliente(db_session, login_request)
+
+def test_get_current_user(db_session):
+    # Crear un cliente en la base de datos
+    cliente_data = {
+        "nombre": "John Doe",
+        "email": "john.doe@example.com",
+        "nit": "123456789",
+        "direccion": "123 Main St",
+        "telefono": "555-1234",
+        "industria": "Tech",
+        "password": get_password_hash("mysecretpassword"),
+        "WelcomeMessage": "Welcome John!",
+        "escalation_time": 24
+    }
+    cliente = Cliente(**cliente_data)
+    db_session.add(cliente)
+    db_session.commit()
+
+    # Crear un token válido
+    token_data = {"sub": "john.doe@example.com"}
+    token = create_access_token(token_data)
+
+    # Probar obtener usuario actual exitoso
+    user = get_current_user(token, db_session)
+    assert user.email == "john.doe@example.com"
+
+    # Probar obtener usuario actual fallido
+    invalid_token = jwt.encode({"sub": "invalid@example.com"}, "your_secret_key", algorithm="HS256")
+    with pytest.raises(HTTPException):
+        get_current_user(invalid_token, db_session)
+
+
+
+        
