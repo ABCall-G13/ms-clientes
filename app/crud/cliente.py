@@ -32,3 +32,7 @@ def create_cliente(db: Session, cliente: ClienteCreate):
 
 def get_all_clientes(db: Session):
     return db.query(Cliente).all()
+
+
+def get_cliente_by_nit(db: Session, nit: str):
+    return db.query(Cliente).filter(Cliente.nit == nit).first()

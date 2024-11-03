@@ -2,7 +2,7 @@ import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from app.db.base import Base
-from app.crud.cliente import create_cliente, get_all_clientes
+from app.crud.cliente import create_cliente, get_all_clientes, get_cliente_by_nit
 from app.schemas.cliente import ClienteCreate
 
 
@@ -12,6 +12,7 @@ def db_engine():
     Base.metadata.create_all(engine)
     yield engine
     Base.metadata.drop_all(engine)
+
 
 @pytest.fixture(scope='function')
 def db_session(db_engine):
@@ -26,6 +27,7 @@ def db_session(db_engine):
         yield session
     finally:
         session.close()
+
 
 def test_create_cliente(db_session):
     cliente_data = ClienteCreate(
@@ -44,6 +46,7 @@ def test_create_cliente(db_session):
 
     assert cliente.email == cliente_data.email
     assert cliente.nombre == cliente_data.nombre
+
 
 def test_get_all_clientes(db_session):
     cliente_data_1 = ClienteCreate(
@@ -74,3 +77,28 @@ def test_get_all_clientes(db_session):
     assert len(clientes) == 2
     assert clientes[0].email == cliente_data_1.email
     assert clientes[1].email == cliente_data_2.email
+
+
+def test_get_cliente_by_nit(db_session):
+    # Crear un cliente en la base de datos
+    cliente_data = ClienteCreate(
+        nombre="Empresa XYZ",
+        email="empresa@xyz.com",
+        nit="987654321",
+        direccion="Calle Falsa 123",
+        telefono="555-1234",
+        industria="Finanzas",
+        password="Secreto$1",
+        WelcomeMessage="Bienvenido a la empresa XYZ",
+        escalation_time=24
+    )
+    cliente = create_cliente(db_session, cliente_data)
+
+    # Verificar que el cliente existe consultando por el NIT
+    cliente_obtenido = get_cliente_by_nit(db_session, nit="987654321")
+    assert cliente_obtenido is not None
+    assert cliente_obtenido.nombre == cliente_data.nombre
+
+    # Verificar que un NIT inexistente retorna None
+    cliente_inexistente = get_cliente_by_nit(db_session, nit="000000000")
+    assert cliente_inexistente is None

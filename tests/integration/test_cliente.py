@@ -8,8 +8,11 @@ from app.db.session import get_db
 from main import app
 
 SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"
-engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
-TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={
+                       "check_same_thread": False})
+TestingSessionLocal = sessionmaker(
+    autocommit=False, autoflush=False, bind=engine)
+
 
 @pytest.fixture()
 def session():
@@ -25,6 +28,7 @@ def session():
     finally:
         db.close()
 
+
 @pytest.fixture()
 def client(session):
 
@@ -38,11 +42,13 @@ def client(session):
 
     yield TestClient(app)
 
+
 @pytest.fixture()
 def cleanup():
     yield
     if os.path.exists("test.db"):
         os.remove("test.db")
+
 
 def test_create_cliente(client):
     cliente_data = {
@@ -59,6 +65,7 @@ def test_create_cliente(client):
     response = client.post("/clientes/", json=cliente_data)
     assert response.status_code == 200
     assert response.json()["nombre"] == cliente_data["nombre"]
+
 
 def test_listar_clientes(client):
     cliente_data_1 = {
@@ -91,3 +98,26 @@ def test_listar_clientes(client):
     assert len(clientes) == 2
     assert clientes[0]["email"] == cliente_data_1["email"]
     assert clientes[1]["email"] == cliente_data_2["email"]
+
+
+def test_obtener_cliente_por_nit(client):
+    cliente_data = {
+        "nombre": "Empresa XYZ",
+        "email": "empresa@xyz.com",
+        "nit": "987654321",
+        "direccion": "Calle Falsa 123",
+        "telefono": "555-1234",
+        "industria": "Finanzas",
+        "password": "Secreto$1",
+        "WelcomeMessage": "Bienvenido a la empresa XYZ",
+        "escalation_time": 24
+    }
+    client.post("/clientes/", json=cliente_data)
+
+    response = client.get("/clientes/987654321")
+    assert response.status_code == 200
+    assert response.json()["nombre"] == cliente_data["nombre"]
+
+    response = client.get("/clientes/000000000")
+    assert response.status_code == 404
+    assert response.json()["detail"] == "Cliente no encontrado"
