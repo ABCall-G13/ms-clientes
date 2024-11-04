@@ -11,7 +11,7 @@ class ClienteCreate(BaseModel):
     industria: str
     password: str
     WelcomeMessage: str
-    escalation_time: Optional[int] = None
+    escalation_time: Optional[int] = 7
 
     class Config:
         from_attributes = True
