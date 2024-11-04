@@ -1,4 +1,5 @@
 from pydantic import BaseModel, EmailStr
+from typing import Optional
 
 
 class ClienteCreate(BaseModel):
@@ -10,7 +11,7 @@ class ClienteCreate(BaseModel):
     industria: str
     password: str
     WelcomeMessage: str
-    escalation_time: int
+    escalation_time: Optional[int] = None
 
     class Config:
         from_attributes = True
