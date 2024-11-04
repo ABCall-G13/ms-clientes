@@ -20,6 +20,7 @@ def registrar_cliente(cliente: ClienteCreate, db: Session = Depends(get_db)):
 
 @router.get("/clientes", response_model=List[ClienteResponse])
 def listar_clientes(db: Session = Depends(get_db), current_user: Cliente = Depends(get_current_user)):
+    print("current_user", current_user.id)
     return get_all_clientes(db)
 
 @router.get("/clientes/{nit}", response_model=ClienteResponse)
