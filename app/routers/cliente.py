@@ -19,8 +19,7 @@ def registrar_cliente(cliente: ClienteCreate, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail=str(e))
 
 @router.get("/clientes", response_model=List[ClienteResponse])
-def listar_clientes(db: Session = Depends(get_db), current_user: Cliente = Depends(get_current_user)):
-    print("current_user", current_user.id)
+def listar_clientes(db: Session = Depends(get_db)):
     return get_all_clientes(db)
 
 @router.get("/clientes/{nit}", response_model=ClienteResponse)
