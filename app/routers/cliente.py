@@ -19,11 +19,11 @@ def registrar_cliente(cliente: ClienteCreate, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail=str(e))
 
 @router.get("/clientes", response_model=List[ClienteResponse])
-def listar_clientes(db: Session = Depends(get_db)):
+def listar_clientes(db: Session = Depends(get_db), current_user: Cliente = Depends(get_current_user)):
     return get_all_clientes(db)
 
 @router.get("/clientes/{nit}", response_model=ClienteResponse)
-def obtener_cliente_por_nit(nit: str, db: Session = Depends(get_db)):
+def obtener_cliente_por_nit(nit: str, db: Session = Depends(get_db), current_user: Cliente = Depends(get_current_user)):
     cliente = get_cliente_by_nit(db, nit=nit)
     if cliente is None:
         raise HTTPException(status_code=404, detail="Cliente no encontrado")
