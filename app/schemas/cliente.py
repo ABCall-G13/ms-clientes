@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, ConfigDict
 from typing import Optional
 
 
@@ -13,8 +13,7 @@ class ClienteCreate(BaseModel):
     WelcomeMessage: str
     escalation_time: Optional[int] = 7
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class ClienteResponse(BaseModel):
@@ -28,5 +27,4 @@ class ClienteResponse(BaseModel):
     WelcomeMessage: str
     escalation_time: int
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)

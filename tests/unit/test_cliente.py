@@ -158,14 +158,24 @@ def test_get_current_user(db_session):
     token_data = {"sub": "john.doe@example.com"}
     token = create_access_token(token_data)
 
+    # Mockear el request con el token en el header Authorization
+    class MockRequest:
+        headers = {
+            "Authorization": f"Bearer {token}"
+        }
+
     # Probar obtener usuario actual exitoso
-    user = get_current_user(token, db_session)
+    user = get_current_user(MockRequest(), db_session)
     assert user.email == "john.doe@example.com"
 
     # Probar obtener usuario actual fallido
     invalid_token = jwt.encode({"sub": "invalid@example.com"}, "your_secret_key", algorithm="HS256")
+    class MockInvalidRequest:
+        headers = {
+            "Authorization": f"Bearer {invalid_token}"
+        }
     with pytest.raises(HTTPException):
-        get_current_user(invalid_token, db_session)
+        get_current_user(MockInvalidRequest(), db_session)
 
 
 
