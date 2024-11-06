@@ -38,32 +38,25 @@ def get_current_user(request: Request, db: Session = Depends(get_db)):
     
     print("Headers received:", request.headers)
 
-    user_info_encoded = request.headers.get("X-Endpoint-API-UserInfo")
-    if user_info_encoded:
-        try:
-            user_info_json = base64.urlsafe_b64decode(user_info_encoded).decode("utf-8")
-            user_info = json.loads(user_info_json)
-            email = user_info.get("email")
-            print("Decoded user info:", user_info)
-        except (ValueError, json.JSONDecodeError):
-            raise credentials_exception
-    else:
-        # Fallback to Authorization header
-        token = request.headers.get("Authorization")
-        if not token or not token.startswith("Bearer "):
-            raise credentials_exception
-        token = token[7:]
-        
-        try:
-            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-            email: str = payload.get("sub")
-            if email is None:
-                raise credentials_exception
-            print("JWT payload:", payload) 
-        except JWTError:
-            raise credentials_exception
+    # Intenta obtener el token de Authorization o X-Forwarded-Authorization
+    token =  request.headers.get("X-Forwarded-Authorization")
     
-    # Look up user in the database
+    if not token or not token.startswith("Bearer "):
+        raise credentials_exception
+    
+    # Elimina el prefijo 'Bearer ' del token
+    token = token[7:]
+    
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        email: str = payload.get("sub")
+        if email is None:
+            raise credentials_exception
+        print("JWT payload:", payload)  # Imprime el contenido del JWT
+    except JWTError:
+        raise credentials_exception
+    
+    # Busca al usuario en la base de datos
     user = db.query(Cliente).filter(Cliente.email == email).first()
     if user is None:
         raise credentials_exception
