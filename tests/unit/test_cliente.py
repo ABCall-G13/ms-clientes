@@ -3,7 +3,7 @@ import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from app.db.base import Base
-from app.crud.cliente import authenticate_cliente, create_cliente, get_all_clientes, get_cliente_by_nit, get_password_hash
+from app.crud.cliente import authenticate_cliente, create_cliente, get_all_clientes, get_cliente_by_nit, get_password_hash, get_cliente_by_email
 from app.models.cliente import Cliente
 from app.schemas.auth import LoginRequest
 from app.schemas.cliente import ClienteCreate
@@ -107,6 +107,30 @@ def test_get_cliente_by_nit(db_session):
 
     # Verificar que un NIT inexistente retorna None
     cliente_inexistente = get_cliente_by_nit(db_session, nit="000000000")
+    assert cliente_inexistente is None
+
+def test_obtener_cliente_por_email(db_session):
+    # Crear un cliente en la base de datos
+    cliente_data = ClienteCreate(
+        nombre="Empresa XYZ",
+        email="empresa@xyz.com",
+        nit="987654321",
+        direccion="Calle Falsa 123",
+        telefono="555-1234",
+        industria="Finanzas",
+        password="Secreto$1",
+        WelcomeMessage="Bienvenido a la empresa XYZ",
+        escalation_time=24
+    )
+    cliente = create_cliente(db_session, cliente_data)
+
+    # Verificar que el cliente existe consultando por el email
+    cliente_obtenido = get_cliente_by_email(db_session, email="empresa@xyz.com")
+    assert cliente_obtenido is not None
+    assert cliente_obtenido.nombre == cliente_data.nombre
+
+    # Verificar que un email inexistente retorna None
+    cliente_inexistente = get_cliente_by_email(db_session, email="noexiste@xyz.com")
     assert cliente_inexistente is None
     
 def test_authenticate_cliente(db_session):

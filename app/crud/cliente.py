@@ -40,6 +40,9 @@ def get_all_clientes(db: Session):
 def get_cliente_by_nit(db: Session, nit: str):
     return db.query(Cliente).filter(Cliente.nit == nit).first()
 
+def get_cliente_by_email(db: Session, email: str):
+    return db.query(Cliente).filter(Cliente.email == email).first()
+
 def authenticate_cliente(db: Session, login_request: LoginRequest):
     cliente = db.query(Cliente).filter(Cliente.email == login_request.email).first()
     if not cliente or not verify_password(login_request.password, cliente.password):
