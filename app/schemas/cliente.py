@@ -28,3 +28,8 @@ class ClienteResponse(BaseModel):
     escalation_time: int
 
     model_config = ConfigDict(from_attributes=True)
+
+class EmailRequest(BaseModel):
+    email: str
+
+    model_config = ConfigDict(from_attributes=True)

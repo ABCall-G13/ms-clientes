@@ -5,8 +5,9 @@ from sqlalchemy.orm import sessionmaker
 from app.db.base import Base
 from app.crud.cliente import authenticate_cliente, create_cliente, get_all_clientes, get_cliente_by_nit, get_password_hash, get_cliente_by_email
 from app.models.cliente import Cliente
+from app.routers.cliente import obtener_cliente_por_email
 from app.schemas.auth import LoginRequest
-from app.schemas.cliente import ClienteCreate
+from app.schemas.cliente import ClienteCreate, EmailRequest
 from jose import jwt
 
 from app.utils.security import create_access_token, get_current_user, verify_password
@@ -232,6 +233,32 @@ def test_get_current_user(db_session):
     with pytest.raises(HTTPException):
         get_current_user(MockInvalidRequest(), db_session)
 
+
+def test_obtener_cliente_por_email_no_encontrado(db_session):
+    # Crear un cliente en la base de datos
+    cliente_data = ClienteCreate(
+        nombre="John Doe",
+        email="john.doe@example.com",
+        nit="123456789",
+        direccion="123 Main St",
+        telefono="555-1234",
+        industria="Tech",
+        password="mysecretpassword",
+        WelcomeMessage="Welcome John!",
+        escalation_time=24
+    )
+    create_cliente(db_session, cliente_data)
+
+    # Mockear una solicitud con un email inexistente
+    class MockRequest:
+        headers = {
+            "X-Forwarded-Authorization": "Bearer invalid_token"
+        }
+
+    # Probar obtener cliente por email inexistente
+    with pytest.raises(HTTPException):
+        obtener_cliente_por_email(EmailRequest(email="sebas@gmail.com"), db_session, get_current_user(MockRequest(), db_session))
+        
 
 
         
