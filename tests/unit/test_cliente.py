@@ -258,7 +258,7 @@ def test_obtener_cliente_por_email_no_encontrado(db_session):
 
     # Probar obtener cliente por email inexistente
     with pytest.raises(HTTPException) as exc_info:
-        obtener_cliente_por_email(EmailRequest(email="sebas@gmail.com"), db_session, get_current_user(MockRequest(), db_session))
+        obtener_cliente_por_email(EmailRequest(email="sebas@gmail.com"), db_session)
     
     assert exc_info.value.status_code == 404
     assert exc_info.value.detail == "Cliente no encontrado"
