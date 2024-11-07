@@ -31,7 +31,7 @@ def obtener_cliente_por_nit(nit: str, db: Session = Depends(get_db), current_use
 
 ## Crear una ruta que valide un cliente por email y se mande el emial en el body
 @router.post("/clientes/email", response_model=ClienteResponse)
-def obtener_cliente_por_email(request: EmailRequest, db: Session = Depends(get_db), current_user: Cliente = Depends(get_current_user)):
+def obtener_cliente_por_email(request: EmailRequest, db: Session = Depends(get_db)):
     cliente = get_cliente_by_email(db, email=request.email)
     if cliente is None:
         raise HTTPException(status_code=404, detail="Cliente no encontrado")
