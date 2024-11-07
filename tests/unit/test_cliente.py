@@ -9,7 +9,7 @@ from app.schemas.auth import LoginRequest
 from app.schemas.cliente import ClienteCreate
 from jose import jwt
 
-from app.utils.security import create_access_token, get_current_user
+from app.utils.security import create_access_token, get_current_user, verify_password
 
 
 @pytest.fixture(scope='module')
@@ -132,6 +132,75 @@ def test_obtener_cliente_por_email(db_session):
     # Verificar que un email inexistente retorna None
     cliente_inexistente = get_cliente_by_email(db_session, email="noexiste@xyz.com")
     assert cliente_inexistente is None
+
+def test_create_cliente_with_duplicate_email(db_session):
+    cliente_data = ClienteCreate(
+        nombre="John Doe",
+        email="john.doe@example.com",
+        nit="123456789",
+        direccion="123 Main St",
+        telefono="555-1234",
+        industria="Tech",
+        password="mysecretpassword",
+        WelcomeMessage="Welcome John!",
+        escalation_time=24
+    )
+    create_cliente(db_session, cliente_data)
+    
+    # Intentar crear un cliente con el mismo email debería fallar
+    with pytest.raises(HTTPException) as exc_info:
+        create_cliente(db_session, cliente_data)
+    assert exc_info.value.status_code == 400
+    assert "duplicate" in str(exc_info.value.detail).lower()
+
+
+def test_get_current_user_with_expired_token(db_session):
+    # Crear un cliente en la base de datos
+    cliente_data = {
+        "nombre": "John Doe",
+        "email": "john.doe@example.com",
+        "nit": "123456789",
+        "direccion": "123 Main St",
+        "telefono": "555-1234",
+        "industria": "Tech",
+        "password": get_password_hash("mysecretpassword"),
+        "WelcomeMessage": "Welcome John!",
+        "escalation_time": 24
+    }
+    cliente = Cliente(**cliente_data)
+    db_session.add(cliente)
+    db_session.commit()
+
+    # Crear un token que expire inmediatamente
+    token_data = {"sub": "john.doe@example.com"}
+    token = create_access_token(token_data)
+    
+    # Espera para que el token expire
+    import time
+    time.sleep(1)
+    
+    # Mockear una solicitud con el token expirado
+    class MockRequest:
+        headers = {
+            "X-Forwarded-Authorization": f"Bearer {token}"
+        }
+
+    with pytest.raises(HTTPException) as exc_info:
+        get_current_user(MockRequest(), db_session)
+    assert exc_info.value.status_code == 401
+    assert "credentials" in str(exc_info.value.detail).lower()
+
+def test_verify_password():
+    password = "mysecretpassword"
+    hashed_password = get_password_hash(password)
+
+    # Verificar con la contraseña correcta
+    assert verify_password("mysecretpassword", hashed_password)
+
+    # Verificar con una contraseña incorrecta
+    assert not verify_password("wrongpassword", hashed_password)
+
+
     
 def test_authenticate_cliente(db_session):
     # Crear un cliente en la base de datos
