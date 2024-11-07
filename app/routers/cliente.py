@@ -3,8 +3,8 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.models.cliente import Cliente
 from app.schemas.auth import LoginRequest
-from app.schemas.cliente import ClienteCreate, ClienteResponse
-from app.crud.cliente import authenticate_cliente, create_cliente, get_all_clientes, get_cliente_by_nit
+from app.schemas.cliente import ClienteCreate, ClienteResponse, EmailRequest
+from app.crud.cliente import authenticate_cliente, create_cliente, get_all_clientes, get_cliente_by_nit, get_cliente_by_email
 from app.db.session import get_db
 from typing import List
 from app.utils.security import get_current_user
@@ -25,6 +25,14 @@ def listar_clientes(db: Session = Depends(get_db)):
 @router.get("/clientes/{nit}", response_model=ClienteResponse)
 def obtener_cliente_por_nit(nit: str, db: Session = Depends(get_db), current_user: Cliente = Depends(get_current_user)):
     cliente = get_cliente_by_nit(db, nit=nit)
+    if cliente is None:
+        raise HTTPException(status_code=404, detail="Cliente no encontrado")
+    return cliente
+
+## Crear una ruta que valide un cliente por email y se mande el emial en el body
+@router.post("/clientes/email", response_model=ClienteResponse)
+def obtener_cliente_por_email(request: EmailRequest, db: Session = Depends(get_db), current_user: Cliente = Depends(get_current_user)):
+    cliente = get_cliente_by_email(db, email=request.email)
     if cliente is None:
         raise HTTPException(status_code=404, detail="Cliente no encontrado")
     return cliente
