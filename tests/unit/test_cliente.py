@@ -163,8 +163,6 @@ def test_verify_password():
 
     # Verificar con una contraseña incorrecta
     assert not verify_password("wrongpassword", hashed_password)
-
-
     
 def test_authenticate_cliente(db_session):
     # Crear un cliente en la base de datos
@@ -249,16 +247,19 @@ def test_obtener_cliente_por_email_no_encontrado(db_session):
     )
     create_cliente(db_session, cliente_data)
 
-    # Mockear una solicitud con un email inexistente
+    # Crear un token válido
+    token_data = {"sub": "john.doe@example.com"}
+    token = create_access_token(token_data)
+
     class MockRequest:
         headers = {
-            "X-Forwarded-Authorization": "Bearer invalid_token"
+            "X-Forwarded-Authorization": f"Bearer {token}"
         }
 
     # Probar obtener cliente por email inexistente
-    with pytest.raises(HTTPException):
+    with pytest.raises(HTTPException) as exc_info:
         obtener_cliente_por_email(EmailRequest(email="sebas@gmail.com"), db_session, get_current_user(MockRequest(), db_session))
-        
-
-
+    
+    assert exc_info.value.status_code == 404
+    assert exc_info.value.detail == "Cliente no encontrado"
         

@@ -1,11 +1,16 @@
+from fastapi import HTTPException
 import pytest
 import os
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from app.crud.cliente import create_cliente, get_password_hash
 from app.db.base import Base
 from app.db.session import get_db
-from app.utils.security import get_current_user
+from app.routers.cliente import obtener_cliente_por_email
+from app.schemas.auth import LoginRequest
+from app.schemas.cliente import ClienteCreate, EmailRequest
+from app.utils.security import create_access_token, get_current_user
 from main import app
 from app.models.cliente import Cliente
 
@@ -127,3 +132,38 @@ def test_obtener_cliente_por_nit(client):
     response = client.get("/clientes/000000000")
     assert response.status_code == 404
     assert response.json()["detail"] == "Cliente no encontrado"
+
+
+def test_registrar_cliente_con_valor_invalido(client):
+    cliente_data_invalido = {
+        "nombre": "Empresa XYZ",
+        "email": "empresa@xyz.com",
+        "nit": "",  # NIT vacío para provocar un ValueError
+        "direccion": "Calle Falsa 123",
+        "telefono": "555-1234",
+        "industria": "Finanzas",
+        "password": "Secreto$1",
+        "WelcomeMessage": "Bienvenido a la empresa XYZ",
+        "escalation_time": 24
+    }
+    
+    response = client.post("/clientes/", json=cliente_data_invalido)
+    assert response.status_code == 400
+
+
+def test_registrar_cliente_con_email_invalido(client):
+    cliente_data_invalido = {
+        "nombre": "Empresa XYZ",
+        "email": "email_invalido",  # Email inválido para provocar un ValueError
+        "nit": "987654321",
+        "direccion": "Calle Falsa 123",
+        "telefono": "555-1234",
+        "industria": "Finanzas",
+        "password": "Secreto$1",
+        "WelcomeMessage": "Bienvenido a la empresa XYZ",
+        "escalation_time": 24
+    }
+    
+    response = client.post("/clientes/", json=cliente_data_invalido)
+    assert response.status_code == 422
+
