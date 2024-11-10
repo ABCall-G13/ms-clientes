@@ -1,6 +1,12 @@
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, Enum
 from app.db.base import Base
 from sqlalchemy.orm import validates
+import enum
+
+class PlanEnum(enum.Enum):
+    emprendedor = "Emprendedor"
+    empresario = "Empresario"
+    empresario_plus = "Empresario Plus"
 
 class Cliente(Base):
     __tablename__ = "clientes"
@@ -15,6 +21,7 @@ class Cliente(Base):
     password = Column(String(128), nullable=False)
     WelcomeMessage = Column(String)
     escalation_time = Column(Integer)
+    plan = Column(Enum(PlanEnum))
 
     def __init__(self, **kwargs):
         self.session = kwargs.pop('session', None)

@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.models.cliente import Cliente
 from app.schemas.auth import LoginRequest
-from app.schemas.cliente import ClienteCreate, ClienteResponse, EmailRequest
+from app.schemas.cliente import ClienteCreate, ClienteResponse, EmailRequest, UpdatePlanRequest
 from app.crud.cliente import authenticate_cliente, create_cliente, get_all_clientes, get_cliente_by_nit, get_cliente_by_email
 from app.db.session import get_db
 from typing import List
@@ -40,3 +40,13 @@ def obtener_cliente_por_email(request: EmailRequest, db: Session = Depends(get_d
 @router.post("/login-client")
 def login_client(login_request: LoginRequest, db: Session = Depends(get_db)):
     return authenticate_cliente(db, login_request)
+
+
+@router.post("/clientes/update-plan", response_model=ClienteResponse)
+def actualizar_plan_cliente(request: UpdatePlanRequest, db: Session = Depends(get_db), current_user: Cliente = Depends(get_current_user)):
+
+    current_user.plan = request.plan
+    db.commit()
+    db.refresh(current_user)
+
+    return current_user
