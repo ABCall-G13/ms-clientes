@@ -20,9 +20,7 @@ TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engin
 
 @pytest.fixture()
 def session():
-    # Eliminar todas las tablas antes de la prueba
     Base.metadata.drop_all(bind=engine)
-    # Crear las tablas nuevamente
     Base.metadata.create_all(bind=engine)
 
     db = TestingSessionLocal()
@@ -34,27 +32,29 @@ def session():
 
 @pytest.fixture()
 def client(session):
-    # Mockear get_current_user para evitar la autenticación real
-    def mock_get_current_user():
-        # Retorna un usuario simulado
-        return Cliente(
-            id=1,
-            nombre="Usuario Simulado",
-            email="simulado@xyz.com",
-            nit="123456789",
-            direccion="Calle Falsa 123",
-            telefono="555-1234",
-            industria="Tecnología",
-            password="hashedpassword"
-        )
+    cliente = Cliente(
+        nombre="Usuario Simulado",
+        email="simulado@xyz.com",
+        nit="123456789",
+        direccion="Calle Falsa 123",
+        telefono="555-1234",
+        industria="Tecnología",
+        password="hashedpassword",
+        WelcomeMessage="Bienvenido a la empresa XYZ",
+        escalation_time=24
+    )
+    session.add(cliente)
+    session.commit()
+    session.refresh(cliente)
 
-    # Sobrescribir la dependencia get_current_user
+    def mock_get_current_user():
+        return session.query(Cliente).get(cliente.id)
+
     app.dependency_overrides[get_db] = lambda: session
     app.dependency_overrides[get_current_user] = mock_get_current_user
 
     yield TestClient(app)
 
-    # Limpiar overrides después de las pruebas
     app.dependency_overrides = {}
 
 @pytest.fixture()
@@ -80,36 +80,12 @@ def test_create_cliente(client):
     assert response.json()["nombre"] == cliente_data["nombre"]
 
 def test_listar_clientes(client):
-    cliente_data_1 = {
-        "nombre": "Empresa XYZ",
-        "email": "empresa@xyz.com",
-        "nit": "987654321",
-        "direccion": "Calle Falsa 123",
-        "telefono": "555-1234",
-        "industria": "Finanzas",
-        "password": "Secreto$1",
-        "WelcomeMessage": "Bienvenido a la empresa XYZ",
-        "escalation_time": 24
-    }
-    cliente_data_2 = {
-        "nombre": "Empresa ABC",
-        "email": "empresa@abc.com",
-        "nit": "123456789",
-        "direccion": "Avenida Siempre Viva 742",
-        "telefono": "555-5678",
-        "industria": "Tecnología",
-        "password": "Secreto$2",
-        "WelcomeMessage": "Bienvenido a la empresa ABC",
-        "escalation_time": 24
-    }
-    client.post("/clientes/", json=cliente_data_1)
-    client.post("/clientes/", json=cliente_data_2)
+
     response = client.get("/clientes/")
     assert response.status_code == 200
     clientes = response.json()
-    assert len(clientes) == 2
-    assert clientes[0]["email"] == cliente_data_1["email"]
-    assert clientes[1]["email"] == cliente_data_2["email"]
+    assert len(clientes) == 1
+    assert clientes[0]["email"] == "simulado@xyz.com"
 
 def test_obtener_cliente_por_nit(client):
     cliente_data = {
@@ -167,3 +143,14 @@ def test_registrar_cliente_con_email_invalido(client):
     response = client.post("/clientes/", json=cliente_data_invalido)
     assert response.status_code == 422
 
+
+def test_actualizar_plan_cliente(client):
+    update_plan_data = {
+        "plan": "Empresario Plus"
+    }
+
+    response = client.post("/clientes/update-plan", json=update_plan_data)
+    assert response.status_code == 200
+
+    cliente_actualizado = response.json()
+    assert cliente_actualizado["plan"] == "Empresario Plus"
