@@ -35,11 +35,9 @@ def get_current_user(request: Request, db: Session = Depends(get_db)):
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
-    
-    print("Headers received:", request.headers)
 
     # Intenta obtener el token de Authorization o X-Forwarded-Authorization
-    token =  request.headers.get("X-Forwarded-Authorization")
+    token =  request.headers.get("X-Forwarded-Authorization") or request.headers.get("Authorization")
     
     if not token or not token.startswith("Bearer "):
         raise credentials_exception
@@ -52,7 +50,6 @@ def get_current_user(request: Request, db: Session = Depends(get_db)):
         email: str = payload.get("sub")
         if email is None:
             raise credentials_exception
-        print("JWT payload:", payload)  # Imprime el contenido del JWT
     except JWTError:
         raise credentials_exception
     
