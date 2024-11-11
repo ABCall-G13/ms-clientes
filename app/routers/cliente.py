@@ -42,14 +42,14 @@ def login_client(login_request: LoginRequest, db: Session = Depends(get_db)):
     return authenticate_cliente(db, login_request)
 
 
-@router.post("/clientes/update-plan", response_model=ClienteResponse)
+@router.post("/clientes/update-plan", response_model=bool)
 def actualizar_plan_cliente(request: UpdatePlanRequest, db: Session = Depends(get_db), current_user: Cliente = Depends(get_current_user)):
 
     current_user.plan = request.plan
     db.commit()
     db.refresh(current_user)
 
-    return current_user
+    return True
 
 @router.get("/status-plan", response_model=bool)
 def obtener_estado_plan_cliente(current_user: Cliente = Depends(get_current_user)):

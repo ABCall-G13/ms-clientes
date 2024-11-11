@@ -152,10 +152,6 @@ def test_actualizar_plan_cliente(client):
     response = client.post("/clientes/update-plan", json=update_plan_data)
     assert response.status_code == 200
 
-    cliente_actualizado = response.json()
-    assert cliente_actualizado["plan"] == "Empresario Plus"
-    
-
 def test_plan_status(client):
     response = client.get("/status-plan")
     assert response.status_code == 200
