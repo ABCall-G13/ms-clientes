@@ -50,3 +50,7 @@ def actualizar_plan_cliente(request: UpdatePlanRequest, db: Session = Depends(ge
     db.refresh(current_user)
 
     return current_user
+
+@router.get("/status-plan", response_model=bool)
+def obtener_estado_plan_cliente(current_user: Cliente = Depends(get_current_user)):
+    return current_user.plan is not None
