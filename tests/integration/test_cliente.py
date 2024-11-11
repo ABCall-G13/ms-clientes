@@ -154,3 +154,9 @@ def test_actualizar_plan_cliente(client):
 
     cliente_actualizado = response.json()
     assert cliente_actualizado["plan"] == "Empresario Plus"
+    
+
+def test_plan_status(client):
+    response = client.get("/status-plan")
+    assert response.status_code == 200
+    assert response.json() is False
