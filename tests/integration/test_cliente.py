@@ -146,7 +146,7 @@ def test_registrar_cliente_con_email_invalido(client):
 
 def test_actualizar_plan_cliente(client):
     update_plan_data = {
-        "plan": "Empresario Plus"
+        "plan": "empresario_plus"
     }
 
     response = client.post("/clientes/update-plan", json=update_plan_data)
