@@ -4,9 +4,9 @@ from sqlalchemy.orm import validates
 import enum
 
 class PlanEnum(enum.Enum):
-    emprendedor = "Emprendedor"
-    empresario = "Empresario"
-    empresario_plus = "Empresario Plus"
+    emprendedor = "emprendedor"
+    empresario = "empresario"
+    empresario_plus = "empresario_plus"
 
 class Cliente(Base):
     __tablename__ = "clientes"

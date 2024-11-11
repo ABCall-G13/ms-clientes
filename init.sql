@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS clientes (
     password VARCHAR(128) NOT NULL,
     WelcomeMessage VARCHAR(255),
     escalation_time INT,
-    plan ENUM('Emprendedor', 'Empresario', 'Empresario Plus') DEFAULT NULL,  -- Campo `plan` agregado
+    plan ENUM('emprendedor', 'empresario', 'empresario_plus') DEFAULT NULL,
     INDEX (nombre),
     INDEX (email),
     INDEX (nit)
