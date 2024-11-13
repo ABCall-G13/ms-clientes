@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import cliente
+from app.routers import cliente, agente
 from app.db.session import engine
 from app.db.base import Base
 
@@ -24,6 +24,7 @@ app.add_middleware(
 )
 
 app.include_router(cliente.router)
+app.include_router(agente.router)
 
 
 if __name__ == "__main__":

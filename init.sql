@@ -18,3 +18,11 @@ CREATE TABLE IF NOT EXISTS clientes (
     INDEX (email),
     INDEX (nit)
 );
+
+
+CREATE TABLE IF NOT EXISTS agentes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(60) NOT NULL,
+    correo VARCHAR(60) NOT NULL UNIQUE,
+    password VARCHAR(128) NOT NULL
+);
