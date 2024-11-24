@@ -57,5 +57,5 @@ def obtener_estado_plan_cliente(current_user: Cliente = Depends(get_current_user
 
 
 @router.get("/current-client", response_model=int)
-def obtener_estado_plan_cliente(current_user: Cliente = Depends(get_current_user)):
-    return current_user.id is not None
+def obtener_id_cliente(current_user: Cliente = Depends(get_current_user)):
+    return current_user.id
