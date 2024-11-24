@@ -47,3 +47,4 @@ uvicorn==0.31.1
 virtualenv==20.26.6
 bcrypt==4.2.0
 python-jose==3.3.0
+pytest-asyncio

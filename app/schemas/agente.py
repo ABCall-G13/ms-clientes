@@ -20,3 +20,7 @@ class AgenteLogin(BaseModel):
     password: str
 
     model_config = ConfigDict(from_attributes=True)
+class EmailRequest(BaseModel):
+    email: str
+
+    model_config = ConfigDict(from_attributes=True)
