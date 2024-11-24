@@ -7,8 +7,10 @@ from app.utils.security import create_access_token
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
+
 def get_password_hash(password: str) -> str:
     return pwd_context.hash(password)
+
 
 def create_agente(db: Session, agente: AgenteCreate) -> Agente:
     hashed_password = get_password_hash(agente.password)
@@ -26,13 +28,16 @@ def create_agente(db: Session, agente: AgenteCreate) -> Agente:
         raise ValueError(str(e))
     return db_agente
 
+
 def authenticate_agente(db: Session, correo: str, password: str) -> dict:
     agente = db.query(Agente).filter(Agente.correo == correo).first()
     if not agente or not agente.verify_password(password):
-        raise HTTPException(status_code=400, detail="Correo o contraseña incorrectos")
-    
+        raise HTTPException(
+            status_code=400, detail="Correo o contraseña incorrectos")
+
     access_token = create_access_token(data={"sub": agente.correo})
     return {"access_token": access_token, "token_type": "bearer"}
+
 
 def get_agente_by_email(db: Session, email: str) -> Agente:
     return db.query(Agente).filter(Agente.correo == email).first()
