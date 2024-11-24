@@ -33,3 +33,6 @@ def authenticate_agente(db: Session, correo: str, password: str) -> dict:
     
     access_token = create_access_token(data={"sub": agente.correo})
     return {"access_token": access_token, "token_type": "bearer"}
+
+def get_agente_by_email(db: Session, email: str) -> Agente:
+    return db.query(Agente).filter(Agente.correo == email).first()
