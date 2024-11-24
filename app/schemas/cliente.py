@@ -37,3 +37,4 @@ class EmailRequest(BaseModel):
     
 class UpdatePlanRequest(BaseModel):
     plan: PlanEnum
+    currency: str

@@ -1,3 +1,4 @@
+from unittest.mock import patch
 from fastapi import HTTPException
 import pytest
 import os
@@ -7,16 +8,20 @@ from sqlalchemy.orm import sessionmaker
 from app.crud.cliente import create_cliente, get_password_hash
 from app.db.base import Base
 from app.db.session import get_db
-from app.routers.cliente import obtener_cliente_por_email
+from app.routers.cliente import actualizar_plan_cliente, obtener_cliente_por_email
 from app.schemas.auth import LoginRequest
-from app.schemas.cliente import ClienteCreate, EmailRequest
+from app.schemas.cliente import ClienteCreate, EmailRequest, UpdatePlanRequest
 from app.utils.security import create_access_token, get_current_user
 from main import app
 from app.models.cliente import Cliente
+import responses
+from sqlalchemy.orm import Session
 
 SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"
 engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+
 
 @pytest.fixture()
 def session():
@@ -62,6 +67,29 @@ def cleanup():
     yield
     if os.path.exists("test.db"):
         os.remove("test.db")
+        
+
+@pytest.fixture
+def mock_db_session():
+    # Mock de la sesión de base de datos
+    session = Session()
+    yield session
+    session.close()
+
+@pytest.fixture
+def mock_current_user():
+    # Mock de un cliente actual
+    return Cliente(
+        nombre="Empresa Mock",
+        email="mock@empresa.com",
+        nit="123456789",
+        direccion="Calle Mock 123",
+        telefono="555-1234",
+        industria="MockIndustria",
+        password="hashedpassword",
+        WelcomeMessage="Bienvenido a la empresa Mock",
+        escalation_time=24,
+    )
 
 def test_create_cliente(client):
     cliente_data = {
@@ -144,13 +172,31 @@ def test_registrar_cliente_con_email_invalido(client):
     assert response.status_code == 422
 
 
-def test_actualizar_plan_cliente(client):
-    update_plan_data = {
-        "plan": "empresario_plus"
-    }
+@patch("app.routers.cliente.crear_factura")
+@patch("app.routers.cliente.actualizar_plan")
+def test_actualizar_plan_cliente_no_factura(mock_actualizar_plan, mock_crear_factura, mock_db_session, mock_current_user):
+    # Mock para actualizar_plan
+    mock_actualizar_plan.return_value = mock_current_user
 
-    response = client.post("/clientes/update-plan", json=update_plan_data)
-    assert response.status_code == 200
+    # Mock para crear_factura (verificaremos que no se llama)
+    mock_crear_factura.return_value = None
+
+    # Datos de prueba para la solicitud
+    request_data = UpdatePlanRequest(
+        plan="empresario",
+        currency="USD"
+    )
+
+    # Llamar al método directamente
+    response = actualizar_plan_cliente(
+        request=request_data,
+        db=mock_db_session,
+        current_user=mock_current_user
+    )
+
+    mock_crear_factura.assert_called_once_with(mock_current_user, "empresario", "USD")
+
+    assert response is True
 
 def test_plan_status(client):
     response = client.get("/status-plan")

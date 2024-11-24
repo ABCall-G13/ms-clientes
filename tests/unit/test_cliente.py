@@ -3,7 +3,7 @@ import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from app.db.base import Base
-from app.crud.cliente import authenticate_cliente, create_cliente, get_all_clientes, get_cliente_by_nit, get_password_hash, get_cliente_by_email
+from app.crud.cliente import actualizar_plan, authenticate_cliente, create_cliente, get_all_clientes, get_cliente_by_nit, get_password_hash, get_cliente_by_email
 from app.models.cliente import Cliente
 from app.routers.cliente import obtener_cliente_por_email
 from app.schemas.auth import LoginRequest
@@ -262,4 +262,40 @@ def test_obtener_cliente_por_email_no_encontrado(db_session):
     
     assert exc_info.value.status_code == 404
     assert exc_info.value.detail == "Cliente no encontrado"
-        
+
+
+def test_actualizar_plan(db_session):
+    # Crear un cliente de prueba
+    cliente_data = ClienteCreate(
+        nombre="Empresa XYZ",
+        email="simulado@xyz.com",
+        nit="123456789",
+        direccion="Calle Falsa 123",
+        telefono="555-1234",
+        industria="Tecnología",
+        password="Secreto$1",
+        WelcomeMessage="Bienvenido a la empresa XYZ",
+        escalation_time=24
+    )
+    cliente = Cliente(
+        nombre=cliente_data.nombre,
+        email=cliente_data.email,
+        nit=cliente_data.nit,
+        direccion=cliente_data.direccion,
+        telefono=cliente_data.telefono,
+        industria=cliente_data.industria,
+        password=cliente_data.password,
+        WelcomeMessage=cliente_data.WelcomeMessage,
+        escalation_time=cliente_data.escalation_time
+    )
+    db_session.add(cliente)
+    db_session.commit()
+    db_session.refresh(cliente)
+
+    # Actualizar el plan del cliente
+    plan = "empresario_plus"
+    cliente_actualizado = actualizar_plan(db_session, cliente, plan)
+
+    # Verificar que el plan se haya actualizado correctamente
+    assert cliente_actualizado.plan.value == plan
+    assert cliente_actualizado.id == cliente.id        

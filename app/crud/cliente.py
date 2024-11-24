@@ -50,3 +50,12 @@ def authenticate_cliente(db: Session, login_request: LoginRequest):
     
     access_token = create_access_token(data={"sub": cliente.email})
     return {"access_token": access_token, "token_type": "bearer"}
+
+ 
+ 
+def actualizar_plan(db: Session, cliente: Cliente, plan: str):
+    cliente.plan = plan
+    db.commit()
+    db.refresh(cliente)
+    return cliente
+
