@@ -23,7 +23,7 @@ def listar_clientes(db: Session = Depends(get_db)):
     return get_all_clientes(db)
 
 @router.get("/clientes/{nit}", response_model=ClienteResponse)
-def obtener_cliente_por_nit(nit: str, db: Session = Depends(get_db), current_user: Cliente = Depends(get_current_user)):
+def obtener_cliente_por_nit(nit: str, db: Session = Depends(get_db)):
     cliente = get_cliente_by_nit(db, nit=nit)
     if cliente is None:
         raise HTTPException(status_code=404, detail="Cliente no encontrado")
