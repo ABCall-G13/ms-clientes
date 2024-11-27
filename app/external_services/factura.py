@@ -5,7 +5,7 @@ from app.schemas.factura import FacturaCreate
 from app.utils.fechas import calcular_fechas
 
 
-def crear_factura(cliente: Cliente, plan: str, currency: str):
+def crear_factura(cliente: Cliente, plan: str):
 
     fecha_inicial, fecha_fin = calcular_fechas()
     
@@ -13,7 +13,7 @@ def crear_factura(cliente: Cliente, plan: str, currency: str):
         cliente_nit=cliente.nit,
         fecha_inicio=fecha_inicial,
         fecha_fin=fecha_fin,
-        monto_base=calcular_monto_total(plan, currency),
+        monto_base=calcular_monto_total(plan),
         monto_adicional=0.0,
         monto_total=0.0,
     )
@@ -30,12 +30,11 @@ def crear_factura(cliente: Cliente, plan: str, currency: str):
         raise ValueError(f"Error HTTP en la creación de factura: {e.response.status_code} - {e.response.text}")
 
 
-def calcular_monto_total(plan: str, currency: str) -> float:
-
-    # 1 dolar = 4000 pesos 
+def calcular_monto_total(plan: str) -> float:
+    # 1 dólar = 4000 pesos
     montos = {
-        "emprendedor": {"COP": 40000, "USD": 10},
-        "empresario": {"COP": 80000, "USD": 20},
-        "empresario_plus": {"COP": 200000, "USD": 50},
+        "emprendedor": 40000,
+        "empresario": 80000,
+        "empresario_plus": 200000,
     }
-    return montos[plan][currency]
+    return montos[plan]

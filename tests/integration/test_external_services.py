@@ -47,8 +47,7 @@ def test_crear_factura(mock_create_cliente, cliente_data):
 
     # Llamar a la función crear_factura
     plan = "empresario_plus"
-    currency = "USD"
-    factura_response = crear_factura(cliente, plan, currency)
+    factura_response = crear_factura(cliente, plan)
 
     # Verificar que la factura se haya creado correctamente
     assert factura_response["cliente_nit"] == "123456789"

@@ -184,7 +184,6 @@ def test_actualizar_plan_cliente_no_factura(mock_actualizar_plan, mock_crear_fac
     # Datos de prueba para la solicitud
     request_data = UpdatePlanRequest(
         plan="empresario",
-        currency="USD"
     )
 
     # Llamar al método directamente
@@ -194,7 +193,7 @@ def test_actualizar_plan_cliente_no_factura(mock_actualizar_plan, mock_crear_fac
         current_user=mock_current_user
     )
 
-    mock_crear_factura.assert_called_once_with(mock_current_user, "empresario", "USD")
+    mock_crear_factura.assert_called_once_with(mock_current_user, "empresario")
 
     assert response is True
 
