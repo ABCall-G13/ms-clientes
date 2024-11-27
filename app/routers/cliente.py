@@ -50,9 +50,7 @@ def actualizar_plan_cliente(
 
     try:
         cliente_actualizado = actualizar_plan(db, current_user, request.plan.value)
-
-        crear_factura(cliente_actualizado, request.plan.value, request.currency)
-
+        crear_factura(cliente_actualizado, request.plan.value)
         return True
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
