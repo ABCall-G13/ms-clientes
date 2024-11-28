@@ -1,9 +1,11 @@
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 import calendar
+import pytz
 
 def calcular_fechas():
 
-    fecha_inicial = date.today()
+    zona_horaria_bogota = pytz.timezone('America/Bogota')
+    fecha_inicial = datetime.now(zona_horaria_bogota).date()
 
     mes_siguiente = fecha_inicial.month % 12 + 1
     anio_siguiente = fecha_inicial.year + (fecha_inicial.month // 12)
