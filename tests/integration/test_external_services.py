@@ -25,6 +25,7 @@ def cliente_data():
 def test_crear_factura(mock_create_cliente, cliente_data):
     # Crear un cliente de prueba
     cliente = Cliente(
+        id=1,
         nombre=cliente_data.nombre,
         email=cliente_data.email,
         nit=cliente_data.nit,
