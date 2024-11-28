@@ -16,6 +16,7 @@ def crear_factura(cliente: Cliente, plan: str):
         monto_base=calcular_monto_total(plan),
         monto_adicional=0.0,
         monto_total=0.0,
+        cliente_id=cliente.id
     )
     
     try:

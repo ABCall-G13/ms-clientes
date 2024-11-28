@@ -8,3 +8,4 @@ class FacturaCreate(BaseModel):
     monto_adicional: float
     monto_total: float
     estado: str = "pendiente"
+    cliente_id: int
